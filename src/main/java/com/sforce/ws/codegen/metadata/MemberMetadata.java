@@ -15,6 +15,8 @@
  */
 package com.sforce.ws.codegen.metadata;
 
+import java.util.Objects;
+
 /**
  * @author btoal
  * @author hhildebrand
@@ -57,7 +59,7 @@ public class MemberMetadata {
         this.loadMethod = loadMethod;
         this.javaTypeInterface = javaTypeInterface;
         this.isArray = isArray;
-        this.writeMethodName = writeMethodName; 
+        this.writeMethodName = writeMethodName;
     }
 
     public static MemberMetadata newInstance(String elementDoc, String javaType, String fieldName, String typeInfo,
@@ -103,7 +105,7 @@ public class MemberMetadata {
     public String getSetMethodName() {
         return this.setMethod;
     }
-    
+
     public String getWriteMethodName() {
     	return this.writeMethodName;
     }
@@ -140,12 +142,46 @@ public class MemberMetadata {
     public String getJavaTypeInterface() {
         return javaTypeInterface;
     }
-    
+
     public boolean getIsArray() {
     	return isArray;
     }
-    
+
     public String getArrayCast() {
     	return String.format("castArray(%s.class, %s)", javaType.replace("[","").replace("]",""), this.fieldName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        MemberMetadata that = (MemberMetadata) o;
+        return isArray == that.isArray &&
+                Objects.equals(elementDoc, that.elementDoc) &&
+                Objects.equals(javaType, that.javaType) &&
+                Objects.equals(fieldName, that.fieldName) &&
+                Objects.equals(typeInfo, that.typeInfo) &&
+                Objects.equals(arraySource, that.arraySource) &&
+                Objects.equals(getMethod, that.getMethod) &&
+                Objects.equals(boolMemberType, that.boolMemberType) &&
+                Objects.equals(boolMethod, that.boolMethod) &&
+                Objects.equals(setMethod, that.setMethod) &&
+                Objects.equals(writeMethod, that.writeMethod) &&
+                Objects.equals(loadType, that.loadType) &&
+                Objects.equals(loadMethod, that.loadMethod) &&
+                Objects.equals(writeMethodName, that.writeMethodName) &&
+                Objects.equals(javaTypeInterface, that.javaTypeInterface);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects
+                .hash(elementDoc, javaType, fieldName, typeInfo, arraySource, getMethod, boolMemberType, boolMethod,
+                        setMethod, writeMethod, loadType, loadMethod, isArray, writeMethodName, javaTypeInterface);
     }
 }

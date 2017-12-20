@@ -26,6 +26,8 @@
 
 package com.sforce.ws.bind;
 
+import java.io.Serializable;
+
 /**
  * This class contains the information regaing a type.
  *
@@ -33,7 +35,8 @@ package com.sforce.ws.bind;
  * @version 1.0
  * @since 1.0  Dec 1, 2005
  */
-public final class TypeInfo {
+public final class TypeInfo implements Serializable {
+    private static final long serialVersionUID = -3403841833335307505L;
     private String namespace;
     private String name;
     private String typeNS;

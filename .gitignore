@@ -2,5 +2,7 @@
 /.project
 /target
 /.classpath
+/.idea
+/force-wsc.iml
 
 *.java~

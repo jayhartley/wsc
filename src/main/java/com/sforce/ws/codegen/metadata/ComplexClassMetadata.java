@@ -99,15 +99,15 @@ public class ComplexClassMetadata extends ClassMetadata {
             return "implements " + getInterfaceName();
         }
     }
-    
+
     public boolean getHasBaseComplexClass() {
     	return baseComplexClass != null;
     }
-    
+
     public String getBaseComplexClass() {
     	return baseComplexClass;
     }
-    
+
     public String getBaseComplexClassInterface() {
     	if (baseComplexClass == null) {
     		return null;
@@ -115,7 +115,7 @@ public class ComplexClassMetadata extends ClassMetadata {
     	int position = baseComplexClass.lastIndexOf(".");
     	return baseComplexClass.substring(0, position + 1) + "I" + baseComplexClass.substring(position + 1);
     }
-    
+
     public boolean getHasArrayField() {
     	for (MemberMetadata m : this.memberMetadataList) {
     		if (m.getIsArray()) {
@@ -123,5 +123,43 @@ public class ComplexClassMetadata extends ClassMetadata {
     		}
     	}
     	return false;
+    }
+
+    public boolean isSerializable() {
+        return getTypeExtension().contains("java.io.Serializable");
+    }
+
+    public String getSerialVersionUID() {
+        String serialVersionUid = "";
+        if (isSerializable()) {
+            serialVersionUid = "private static final long serialVersionUID = " +
+                    longHash(xsiType, superWrite, superLoad, superToString, memberMetadataList,
+                            generateInterfaces, typeExtension, baseComplexClass) + "L;\n";
+        }
+        return serialVersionUid;
+    }
+
+    private static long longHash(Object... values) {
+        long result = 1L;
+
+        for (Object value : values) {
+            result = 31L * result + singleHash(value);
+        }
+        return result;
+    }
+
+    private static long singleHash(Object value) {
+        long result;
+        if (value instanceof Iterable) {
+            result = 1L;
+            for (Object element : (Iterable) value) {
+                result = 31L * result + singleHash(element);
+            }
+        } else if (value == null) {
+            result = 0L;
+        } else {
+            result = value.hashCode();
+        }
+        return result;
     }
 }

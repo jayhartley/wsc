@@ -26,17 +26,23 @@
 
 package com.sforce.ws.codegen;
 
-import java.io.File;
-import java.util.*;
-
-import javax.xml.namespace.QName;
-
 import com.sforce.ws.bind.NameMapper;
 import com.sforce.ws.bind.TypeMapper;
 import com.sforce.ws.codegen.metadata.ComplexClassMetadata;
 import com.sforce.ws.codegen.metadata.MemberMetadata;
-import com.sforce.ws.wsdl.*;
 import com.sforce.ws.wsdl.Collection;
+import com.sforce.ws.wsdl.ComplexType;
+import com.sforce.ws.wsdl.Element;
+import com.sforce.ws.wsdl.Schema;
+import com.sforce.ws.wsdl.Types;
+
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author hhildebrand
@@ -113,12 +119,18 @@ public class TypeMetadataConstructor {
         StringBuilder sb = new StringBuilder();
 
         if (complexType.getBase() == null) {
+            boolean serializable = false;
             if (complexType.isHeader()) {
                 sb.append("extends com.sforce.ws.bind.SoapHeaderObject ");
             } else if (className.endsWith("Fault")) {
                 sb.append("extends com.sforce.ws.SoapFaultException ");
+            } else {
+                serializable = true;
             }
             sb.append("implements com.sforce.ws.bind.XMLizable");
+            if (serializable) {
+                sb.append(", java.io.Serializable");
+            }
         } else {
             sb.append("extends ").append(localJavaType(complexType.getBase(), 1, false));
         }
@@ -215,7 +227,7 @@ public class TypeMetadataConstructor {
     public String writeMethodName(Element element) {
         return "writeField" + NameMapper.getMethodName(element.getName());
     }
-    
+
     public String superLoad() {
         if (!complexType.hasBaseClass()) { return ""; }
 

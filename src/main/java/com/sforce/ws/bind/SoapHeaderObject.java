@@ -32,6 +32,7 @@ import com.sforce.ws.parser.XmlOutputStream;
 import com.sforce.ws.util.Verbose;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * SoapHeaderObject
@@ -40,7 +41,9 @@ import java.io.IOException;
  * @version 1.0
  * @since 146  Dec 19, 2006
  */
-public class SoapHeaderObject implements com.sforce.ws.bind.XMLizable {
+public class SoapHeaderObject implements com.sforce.ws.bind.XMLizable, Serializable {
+
+    private static final long serialVersionUID = 8069981335655644626L;
 
     /**
      * element  : actor of type {http://www.w3.org/2001/XMLSchema}string
