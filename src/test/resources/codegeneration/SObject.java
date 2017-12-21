@@ -38,6 +38,8 @@ import java.util.Iterator;
  */
 public class SObject extends XmlObject implements ISObject {
 
+    private static final long serialVersionUID = -1354257971L;
+
     /**
      * Constructor
      */

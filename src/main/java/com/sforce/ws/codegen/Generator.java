@@ -26,23 +26,25 @@
 
 package com.sforce.ws.codegen;
 
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.jar.*;
-
-import org.stringtemplate.v4.ST;
-import org.stringtemplate.v4.STGroupDir;
-
 import com.sforce.ws.bind.NameMapper;
 import com.sforce.ws.bind.TypeMapper;
-import com.sforce.ws.codegen.metadata.*;
+import com.sforce.ws.codegen.metadata.ClassMetadata;
+import com.sforce.ws.codegen.metadata.ComplexClassMetadata;
+import com.sforce.ws.codegen.metadata.SimpleClassMetadata;
 import com.sforce.ws.tools.ToolsException;
 import com.sforce.ws.util.FileUtil;
 import com.sforce.ws.util.Verbose;
 import com.sforce.ws.wsdl.*;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STGroupDir;
+
+import java.io.*;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 /**
  * @author hhildebrand
@@ -189,12 +191,12 @@ abstract public class Generator {
         ST template = templates.getInstanceOf(AGGREGATE_RESULT);
         javaFiles.add(generate(packageName, AGGREGATE_RESULT_JAVA, gen, template, dir));
     }
-    
+
     protected void generateExtendedErrorDetailsClasses(Definitions definitions, File dir) throws IOException {
     	String packageName = NameMapper.getPackageName(definitions.getApiType().getNamespace(), packagePrefix);
-    	// Lot of nulls are fine here since this is used only in the .st file. 
+    	// Lot of nulls are fine here since this is used only in the .st file.
     	ComplexClassMetadata gen = new ComplexClassMetadata(packageName, null, null, null, null, null, null, null, typeMapper.generateInterfaces(), null, null);
-    	
+
         ST template = templates.getInstanceOf(EXTENDED_ERROR_DETAILS);
         javaFiles.add(generate(packageName, EXTENDED_ERROR_DETAILS_JAVA, gen, template, dir));
         if (generateInterfaces) {
@@ -202,7 +204,7 @@ abstract public class Generator {
             javaFiles.add(generate(packageName, IEXTENDED_ERROR_DETAILS_JAVA, gen, interfc, dir));
         }
     }
-    
+
     protected void generateClassFromComplexType(Types types, Schema schema, ComplexType complexType, File dir)
             throws IOException {
         ComplexClassMetadata gen = newTypeMetadataConstructor(types, schema, complexType, dir)
@@ -311,7 +313,8 @@ abstract public class Generator {
     }
 
     protected InputStream getManifest() {
-        String m = "Manifest-Version: 1.0\n" + "Created-By: 1.4.2_05-b04 (Sun Microsystems Inc.)\n";
+        String m = "Manifest-Version: 1.0\n" + "Created-By: " + System.getProperty("java.version")
+                + " (Oracle Corporation)\n";
 
         return new ByteArrayInputStream(m.getBytes());
     }
@@ -331,7 +334,7 @@ abstract public class Generator {
     	}
     	return false;
     }
-    
+
     protected ArrayList<String> getRuntimeClasses(ClassLoader cl) throws IOException {
 
         ArrayList<String> classes = new ArrayList<String>();

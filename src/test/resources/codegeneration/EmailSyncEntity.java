@@ -6,6 +6,8 @@ package com.sforce.soap.partner.wsc;
  */
 public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
 
+    private static final long serialVersionUID = -2117022495L;
+
     /**
      * Constructor
      */
@@ -338,4 +340,12 @@ public class EmailSyncEntity implements com.sforce.ws.bind.XMLizable {
     }
 
 
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        typeInfoCache = new java.util.HashMap<String, com.sforce.ws.bind.TypeInfo>();
+    }
 }

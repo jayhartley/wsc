@@ -9,7 +9,7 @@
   <groupId>com.force.api</groupId>
   <artifactId>force-wsc</artifactId>
   <packaging>jar</packaging>
-  <version>42.0.0</version>
+  <version>42.0.1-VEEVA</version>
   <name>force-wsc</name>
   <description>Force.com Web Service Connector</description>
   <url>http://www.force.com</url>
@@ -208,7 +208,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
 	  <plugin>
         <artifactId>maven-gpg-plugin</artifactId>
         <version>1.2</version>
@@ -222,7 +222,7 @@
           </execution>
         </executions>
       </plugin>
-	  
+
       <plugin>
         <groupId>com.mycila.maven-license-plugin</groupId>
         <artifactId>maven-license-plugin</artifactId>

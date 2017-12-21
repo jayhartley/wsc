@@ -26,7 +26,7 @@
 package com.sforce.ws.codegen.metadata;
 
 /**
- * @author btoal 
+ * @author btoal
  * @author hhildebrand
  * @since 184
  */
@@ -61,5 +61,39 @@ public class ClassMetadata {
 
     public String getInterfacePackageName() {
         return interfacePackageName;
+    }
+
+    public String getSerialVersionUID() {
+        return "private static final long serialVersionUID = "
+                + hashMe()
+                + "L;";
+    }
+
+    protected long hashMe() {
+        return longHash(className, packageName, interfacePackageName);
+    }
+
+    static long longHash(Object... values) {
+        long result = 1L;
+
+        for (Object value : values) {
+            result = 31L * result + singleHash(value);
+        }
+        return result;
+    }
+
+    private static long singleHash(Object value) {
+        long result;
+        if (value instanceof Iterable) {
+            result = 1L;
+            for (Object element : (Iterable) value) {
+                result = 31L * result + singleHash(element);
+            }
+        } else if (value == null) {
+            result = 0L;
+        } else {
+            result = value.hashCode();
+        }
+        return result;
     }
 }

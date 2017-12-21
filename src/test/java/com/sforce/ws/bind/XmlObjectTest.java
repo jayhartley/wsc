@@ -26,21 +26,19 @@
 
 package com.sforce.ws.bind;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.xml.namespace.QName;
-
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import com.sforce.ws.parser.XmlInputStream;
 import com.sforce.ws.parser.XmlOutputStream;
 import com.sforce.ws.wsdl.Constants;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import javax.xml.namespace.QName;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * XmlObjectTest -- Validates that subclasses of basic types can be serialized
@@ -50,11 +48,13 @@ import com.sforce.ws.wsdl.Constants;
  */
 public class XmlObjectTest extends TestCase {
 
+    private static final String NAMESPACE = "urn:sobject.partner.soap.sforce.com";
+
     private static class MyDate extends Date {
     }
 
     public void testSubclassWrite() throws IOException {
-        QName qname = new QName("type", "urn:sobject.partner.soap.sforce.com");
+        QName qname = new QName("type", NAMESPACE);
         XmlOutputStream xout = new XmlOutputStream(System.out, true);
         TypeMapper typeMapper = new TypeMapper();
 
@@ -85,7 +85,7 @@ public class XmlObjectTest extends TestCase {
     }
 
     public void testStringArray() throws Exception {
-    	String ns = "urn:sobject.partner.soap.sforce.com";
+    	String ns = NAMESPACE;
     	QName qname = new QName( ns, "anArray" );
     	TypeMapper typeMapper = new TypeMapper();
 
@@ -116,5 +116,74 @@ public class XmlObjectTest extends TestCase {
 		// Assert
 		assertTrue( result.getClass().isArray() );
 		assertTrue( Arrays.equals(ab, (Object[])result));
+    }
+
+    public void testSimpleSerialization() throws IOException, ClassNotFoundException {
+        QName qname = new QName(NAMESPACE, "calendar");
+        XmlObject original = new XmlObject(qname);
+        Calendar cal = Calendar.getInstance();
+        original.setValue(cal);
+        verifySerialization(original);
+    }
+
+    public void testNestedSerialization() throws IOException, ClassNotFoundException {
+        QName qname = new QName(NAMESPACE, "top");
+        XmlObject originalParent = new XmlObject(qname);
+        for (int i=0; i < 10; i ++) {
+            originalParent.setField(String.format("Field_%02d", i), (i * 3.14));
+        }
+        verifySerialization(originalParent);
+    }
+
+    public void testArrayValueSerialization() throws IOException, ClassNotFoundException {
+        QName qName = new QName(NAMESPACE, "anArray");
+        XmlObject original = new XmlObject(qName);
+        String[] data = {"one", "two", "three", "four"};
+        original.setValue(data);
+        verifySerialization(original);
+    }
+
+    public void testObjectArrayValueSerialization() throws IOException, ClassNotFoundException {
+        QName qName = new QName(NAMESPACE, "anArray");
+        XmlObject original = new XmlObject(qName);
+        Object[] data = {"one", 2, 3.0f, "four"};
+        original.setValue(data);
+        verifySerialization(original);
+    }
+
+    private static void verifySerialization(XmlObject original) throws IOException, ClassNotFoundException {
+        try (ByteArrayOutputStream bitesOut = new ByteArrayOutputStream();
+             ObjectOutputStream out = new ObjectOutputStream(bitesOut)) {
+            out.writeObject(original);
+            try (ByteArrayInputStream bitesIn = new ByteArrayInputStream(bitesOut.toByteArray());
+                 ObjectInputStream in = new ObjectInputStream(bitesIn)) {
+                Object copyObj = in.readObject();
+                assertTrue("Failed to create proper object type.", copyObj instanceof XmlObject);
+                XmlObject copy = (XmlObject) copyObj;
+                deepAssertEquals(original, copy, 0);
+            }
+        }
+    }
+
+    private static void deepAssertEquals(XmlObject original, XmlObject copy, int depth) {
+        assertEquals(original.getName(), copy.getName());
+        Object originalValue = original.getValue();
+        if (originalValue != null && originalValue.getClass().isArray()) {
+            assertTrue("Array value mismatch at depth " + depth,
+                    Arrays.equals((Object[])originalValue, (Object[])copy.getValue()));
+        } else {
+            assertEquals(original.getValue(), copy.getValue());
+        }
+        boolean hasChildren = original.hasChildren();
+        assertEquals("Children do not match.", hasChildren, copy.hasChildren());
+        if (hasChildren) {
+            Iterator<XmlObject> originalChildren = original.getChildren();
+            Iterator<XmlObject> copyChildren = copy.getChildren();
+            while (originalChildren.hasNext() && copyChildren.hasNext()) {
+                deepAssertEquals(originalChildren.next(), copyChildren.next(), depth + 1);
+            }
+            assertFalse("Mis-match in child lists at depth " + depth,
+                    originalChildren.hasNext() || copyChildren.hasNext());
+        }
     }
 }

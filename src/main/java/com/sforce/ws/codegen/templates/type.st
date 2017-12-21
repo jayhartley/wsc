@@ -7,7 +7,8 @@ package $gen.packageName$;
  */
 public class $gen.className$ $gen.typeExtension$ $gen.interfaceExtension${
 
-    $if(gen.serializable)$$gen.serialVersionUID$$endif$
+    $gen.serialVersionUID$
+
     /**
      * Constructor
      */
@@ -145,6 +146,15 @@ $gen.splitMemberMetadataList: { split |
         return retVal;
 	}
 	$endif$
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        typeInfoCache = new java.util.HashMap<String, com.sforce.ws.bind.TypeInfo>();
+    }
 }
 
 >>

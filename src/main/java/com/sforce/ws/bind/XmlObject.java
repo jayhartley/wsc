@@ -26,16 +26,18 @@
 
 package com.sforce.ws.bind;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import javax.xml.namespace.QName;
-
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.parser.XmlInputStream;
 import com.sforce.ws.parser.XmlOutputStream;
 import com.sforce.ws.wsdl.Constants;
+
+import javax.xml.namespace.QName;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * This is a generic XML element -- same a DOM element. In the common case this
@@ -46,10 +48,12 @@ import com.sforce.ws.wsdl.Constants;
  * @version 1.0
  * @since 1.0  Dec 12, 2005
  */
-public class XmlObject implements XMLizable {
+public class XmlObject implements XMLizable, Serializable {
+    private static final long serialVersionUID = 3069020979951622418L;
     private QName name;
     private QName xmlType;
-    private Object value;
+    private transient Object value;
+    private Serializable serialValue;
     private String defaultNamespace;
     private ArrayList<XmlObject> children = new ArrayList<XmlObject>();
 
@@ -370,5 +374,21 @@ public class XmlObject implements XMLizable {
         this.value = source.value;
         this.defaultNamespace = source.defaultNamespace;
         this.children = source.children;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        if (value instanceof Serializable) {
+            serialValue = (Serializable)value;
+        } else {
+            serialValue = null;
+        }
+        out.defaultWriteObject();
+        serialValue = null;
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        value = serialValue;
+        serialValue = null;
     }
 }

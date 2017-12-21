@@ -39,6 +39,8 @@ import java.util.Iterator;
  */
 public class SObject extends XmlObject implements ISObject {
 
+    $gen.serialVersionUID$
+
     /**
      * Constructor
      */
