@@ -41,6 +41,8 @@ import java.io.IOException;
  */
 public class AggregateResult extends SObject {
 
+    private static final long serialVersionUID = 33512040608L;
+
     private XmlObject xmlObject = new XmlObject();
 
     /**

@@ -29,13 +29,15 @@ import com.sforce.ws.bind.XmlObject;
 import com.sforce.soap.enterprise.ExtendedErrorCode;
 
 /**
- * ExtendedErrorDetails is loosely typed. You can use {@link #getField(String)} to get the information 
+ * ExtendedErrorDetails is loosely typed. You can use {@link #getField(String)} to get the information
  */
 public class ExtendedErrorDetails extends XmlObject {
 
+    private static final long serialVersionUID = 14882070180L;
+
 	/**
-	 * @return the details associated with the field. You can find the fields to expect for 
-	 * the given {@link #getExtendedErrorCode()} in the wsdl, or online documentation. 
+	 * @return the details associated with the field. You can find the fields to expect for
+	 * the given {@link #getExtendedErrorCode()} in the wsdl, or online documentation.
 	 */
 	@Override
     public Object getField(String name) {
