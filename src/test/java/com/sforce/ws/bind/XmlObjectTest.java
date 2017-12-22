@@ -151,6 +151,21 @@ public class XmlObjectTest extends TestCase {
         verifySerialization(original);
     }
 
+    public void testNotSerializableValue() {
+        QName qName = new QName(NAMESPACE, "randomThing");
+        XmlObject bad = new XmlObject(qName);
+        bad.setValue(new TypeMapper());
+        try (ByteArrayOutputStream bitesOut = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(bitesOut)) {
+            out.writeObject(bad);
+            fail("Should have thrown an exception");
+        } catch (NotSerializableException e) {
+            assertTrue(e.getMessage().contains(TypeMapper.class.toString()));
+        } catch (IOException e) {
+            fail(e.toString());
+        }
+    }
+
     private static void verifySerialization(XmlObject original) throws IOException, ClassNotFoundException {
         try (ByteArrayOutputStream bitesOut = new ByteArrayOutputStream();
              ObjectOutputStream out = new ObjectOutputStream(bitesOut)) {

@@ -33,6 +33,7 @@ import com.sforce.ws.wsdl.Constants;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
+import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -53,7 +54,7 @@ public class XmlObject implements XMLizable, Serializable {
     private QName name;
     private QName xmlType;
     private transient Object value;
-    private Serializable serialValue;
+    private Serializable serialValue; // should be referenced only in writeObject() and readObject()
     private String defaultNamespace;
     private ArrayList<XmlObject> children = new ArrayList<XmlObject>();
 
@@ -379,8 +380,10 @@ public class XmlObject implements XMLizable, Serializable {
     private void writeObject(ObjectOutputStream out) throws IOException {
         if (value instanceof Serializable) {
             serialValue = (Serializable)value;
+        } else if (value != null) {
+            throw new NotSerializableException(value.getClass().toString());
         } else {
-            serialValue = null;
+            serialValue = null; // just in case
         }
         out.defaultWriteObject();
         serialValue = null;
